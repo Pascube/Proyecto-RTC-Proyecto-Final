@@ -1,0 +1,11 @@
+username;email;password;role;bio
+admin;admin@cineclub.com;Admin1234!;admin;Administrador de CineClub. Apasionado del cine desde siempre.
+cinefilo_madrid;carlos.garcia@email.com;Pass1234!;user;Amante del cine de autor y las películas de Nolan.
+peliculera_bcn;laura.martinez@email.com;Pass1234!;user;Me encantan los thrillers psicológicos y el cine de terror.
+nolanfan;miguel.lopez@email.com;Pass1234!;user;Christopher Nolan es el mejor director de la historia. Punto.
+scorsesegirl;ana.rodriguez@email.com;Pass1234!;user;Apasionada del cine clásico de Hollywood y Martin Scorsese.
+animelover;david.fernandez@email.com;Pass1234!;user;El anime es cine. Miyazaki y Satoshi Kon son genios.
+thrillerking;pablo.sanchez@email.com;Pass1234!;user;Si no tiene giros de guión, no me interesa.
+dramaqueeen;sofia.hernandez@email.com;Pass1234!;user;Lloro con cada película de Oscar. Sin vergüenza.
+scifigeek;jorge.perez@email.com;Pass1234!;user;La mejor ciencia ficción es la que hace preguntas filosóficas.
+cinemateca;elena.gomez@email.com;Pass1234!;user;Colecciono películas físicas y voy al cine al menos dos veces por semana.

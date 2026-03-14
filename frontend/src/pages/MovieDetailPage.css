@@ -1,0 +1,206 @@
+.movie-detail-page {
+  padding-top: var(--navbar-height);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Backdrop borroso */
+.movie-detail__backdrop {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px) brightness(0.2);
+  z-index: 0;
+  transform: scale(1.05);
+}
+
+.movie-detail__container {
+  position: relative;
+  z-index: 1;
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-16);
+}
+
+.movie-detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-6);
+  transition: color var(--transition-fast);
+}
+
+.movie-detail__back:hover {
+  color: var(--color-text-primary);
+}
+
+/* Hero: poster + info */
+.movie-detail__hero {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-10);
+  margin-bottom: var(--space-12);
+}
+
+.movie-detail__poster-wrapper {
+  flex-shrink: 0;
+}
+
+.movie-detail__poster {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.movie-detail__title {
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+  line-height: 1.1;
+}
+
+.movie-detail__genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.tag--genre {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: rgba(229, 9, 20, 0.15);
+  color: var(--color-accent);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  transition: background var(--transition-fast);
+}
+
+.tag--genre:hover {
+  background: rgba(229, 9, 20, 0.3);
+}
+
+.movie-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.movie-detail__meta span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.movie-detail__rating {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.movie-detail__review-count {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+}
+
+.movie-detail__synopsis {
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  margin-bottom: var(--space-6);
+  max-width: 60ch;
+}
+
+.movie-detail__watchlist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Reviews section */
+.movie-detail__reviews {
+  max-width: 800px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-surface-alt);
+}
+
+.info-banner {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.info-banner a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.no-reviews {
+  color: var(--color-text-tertiary);
+  text-align: center;
+  padding: var(--space-8);
+}
+
+.reviews__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--space-4);
+  color: var(--color-text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .movie-detail__hero {
+    grid-template-columns: 1fr;
+  }
+
+  .movie-detail__poster-wrapper {
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  .movie-detail__title {
+    font-size: var(--text-2xl);
+  }
+}

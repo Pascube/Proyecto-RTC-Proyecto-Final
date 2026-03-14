@@ -1,0 +1,25 @@
+# Dependencias
+**/node_modules/
+
+# Builds
+**/dist/
+**/build/
+
+# Logs
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# SO / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Archivos temporales
+**/.cache/
+**/*.tmp
+
+# Nota entrega académica:
+# Se incluyen backend/.env y frontend/.env para facilitar la evaluación.
