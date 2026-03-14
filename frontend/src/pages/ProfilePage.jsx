@@ -27,8 +27,8 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchWatchlist = async () => {
       try {
-        const data = await userService.getWatchlist();
-        setWatchlist(data);
+        const data = await userService.getProfile();
+        setWatchlist(data.user?.watchlist || data.watchlist || []);
       } catch {
         // silently fail
       } finally {
@@ -58,8 +58,8 @@ const ProfilePage = () => {
     }
     setIsSaving(true);
     try {
-      const updated = await userService.updateProfile(user._id, profileForm);
-      updateUser(updated);
+      const updated = await userService.updateProfile(profileForm);
+      updateUser(updated.user || updated);
       setEditMode(false);
       toast.success('Perfil actualizado');
     } catch (err) {

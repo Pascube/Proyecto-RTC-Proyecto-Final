@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiTrash2, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
+import { FiTrash2, FiEdit2, FiCheck, FiX, FiFilm } from 'react-icons/fi';
 import StarRating from '../common/StarRating';
 import { useAuth } from '../../context/AuthContext';
 import './ReviewCard.css';
 
-const ReviewCard = ({ review, onDelete, onUpdate }) => {
+const ReviewCard = ({ review, onDelete, onUpdate, onUpdated, onDeleted, showMovie = false }) => {
   const { user, isAdmin } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editComment, setEditComment] = useState(review.comment);
@@ -14,9 +15,12 @@ const ReviewCard = ({ review, onDelete, onUpdate }) => {
   const isAuthor = user?._id === review.user?._id || user?.id === review.user?._id;
   const canModify = isAuthor || isAdmin;
 
+  const handleDelete = () => (onDeleted || onDelete)?.(review._id);
+
   const handleSaveEdit = () => {
     if (editComment.trim().length < 10) return;
-    onUpdate?.(review._id, { rating: editRating, comment: editComment });
+    const cb = onUpdated || onUpdate;
+    cb?.(review._id, { rating: editRating, comment: editComment });
     setIsEditing(false);
   };
 
@@ -36,6 +40,17 @@ const ReviewCard = ({ review, onDelete, onUpdate }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Película asociada (solo en perfil) */}
+      {showMovie && review.movie && (
+        <Link
+          to={`/peliculas/${review.movie._id}`}
+          className="review-card__movie-link"
+        >
+          <FiFilm />
+          <span>{review.movie.title}</span>
+          {review.movie.year && <span className="review-card__movie-year">({review.movie.year})</span>}
+        </Link>
+      )}
       {/* Cabecera */}
       <div className="review-card__header">
         <div className="review-card__user">
@@ -63,7 +78,7 @@ const ReviewCard = ({ review, onDelete, onUpdate }) => {
                   <FiEdit2 />
                 </button>
               )}
-              <button className="review-card__action-btn review-card__action-btn--danger" onClick={() => onDelete?.(review._id)} title="Eliminar">
+              <button className="review-card__action-btn review-card__action-btn--danger" onClick={handleDelete} title="Eliminar">
                 <FiTrash2 />
               </button>
             </>

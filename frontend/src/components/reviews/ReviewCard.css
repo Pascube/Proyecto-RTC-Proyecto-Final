@@ -8,6 +8,29 @@
   gap: var(--space-4);
 }
 
+.review-card__movie-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-surface-alt);
+  transition: color var(--transition-fast);
+}
+
+.review-card__movie-link:hover {
+  color: var(--color-accent-hover, var(--color-accent));
+  text-decoration: underline;
+}
+
+.review-card__movie-year {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}
+
 .review-card__header {
   display: flex;
   align-items: center;

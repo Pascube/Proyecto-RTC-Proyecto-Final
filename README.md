@@ -290,7 +290,10 @@ VITE_API_URL=http://localhost:5000/api
 - [x] Roles de usuario (user / admin)
 - [x] Catálogo de películas con búsqueda y filtros
 - [x] Reseñas con valoración por estrellas
+- [x] Editar y eliminar reseñas propias
 - [x] Lista personal de películas (watchlist)
+- [x] Perfil de usuario con watchlist y reseñas propias
+- [x] Reseñas del perfil enlazadas a su película
 - [x] Panel de administración para gestión del catálogo
 - [x] Subida de imágenes vía Cloudinary
 - [x] Actualización masiva de pósters reales vía TMDB
