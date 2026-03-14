@@ -22,6 +22,8 @@ const movieService = {
     }),
 
   getStats: () => api.get('/movies/stats'),
+
+  getMovieExtras: (id) => api.get(`/movies/${id}/extras`),
 };
 
 export default movieService;

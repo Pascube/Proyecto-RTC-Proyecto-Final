@@ -89,6 +89,54 @@ const tmdbService = {
       releaseDate: best.release_date || null,
     };
   },
+
+  async getMovieExtras(title, year) {
+    const apiKey = process.env.TMDB_API_KEY;
+    if (!apiKey) throw new Error('TMDB_API_KEY no está configurada.');
+
+    const searchResult = await this.searchMovie(title, year);
+    if (!searchResult) {
+      return { cast: [], trailer: null };
+    }
+
+    const tmdbId = searchResult.tmdbId;
+
+    const [creditsRes, videosRes] = await Promise.all([
+      fetch(`${TMDB_BASE_URL}/movie/${tmdbId}/credits?api_key=${encodeURIComponent(apiKey)}&language=es-ES`),
+      fetch(`${TMDB_BASE_URL}/movie/${tmdbId}/videos?api_key=${encodeURIComponent(apiKey)}&language=es-ES`),
+    ]);
+
+    const creditsData = creditsRes.ok ? await creditsRes.json() : { cast: [] };
+    const videosData = videosRes.ok ? await videosRes.json() : { results: [] };
+
+    const cast = (creditsData.cast || []).slice(0, 12).map((actor) => ({
+      id: actor.id,
+      name: actor.name,
+      character: actor.character,
+      profileUrl: actor.profile_path
+        ? `${TMDB_IMAGE_BASE_URL}/w185${actor.profile_path}`
+        : null,
+    }));
+
+    let trailer = (videosData.results || []).find(
+      (v) => v.site === 'YouTube' && v.type === 'Trailer'
+    );
+
+    if (!trailer) {
+      const videosEnRes = await fetch(
+        `${TMDB_BASE_URL}/movie/${tmdbId}/videos?api_key=${encodeURIComponent(apiKey)}&language=en-US`
+      );
+      const videosEnData = videosEnRes.ok ? await videosEnRes.json() : { results: [] };
+      trailer = (videosEnData.results || []).find(
+        (v) => v.site === 'YouTube' && v.type === 'Trailer'
+      );
+    }
+
+    return {
+      cast,
+      trailer: trailer ? trailer.key : null,
+    };
+  },
 };
 
 module.exports = tmdbService;

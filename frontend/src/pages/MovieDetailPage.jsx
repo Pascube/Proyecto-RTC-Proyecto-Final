@@ -18,6 +18,8 @@ import {
   FiUser,
   FiStar,
   FiArrowLeft,
+  FiPlay,
+  FiUsers,
 } from 'react-icons/fi';
 import './MovieDetailPage.css';
 
@@ -43,6 +45,9 @@ const MovieDetailPage = () => {
   const [reviewsPagination, setReviewsPagination] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [extras, setExtras] = useState({ cast: [], trailer: null });
+  const [extrasLoading, setExtrasLoading] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const loadMovie = useCallback(async () => {
     try {
@@ -53,6 +58,18 @@ const MovieDetailPage = () => {
       setError(err.message || 'Error al cargar la película');
     } finally {
       setIsLoading(false);
+    }
+  }, [id]);
+
+  const loadExtras = useCallback(async () => {
+    try {
+      setExtrasLoading(true);
+      const data = await movieService.getMovieExtras(id);
+      setExtras(data);
+    } catch {
+      // silently fail
+    } finally {
+      setExtrasLoading(false);
     }
   }, [id]);
 
@@ -69,6 +86,10 @@ const MovieDetailPage = () => {
   useEffect(() => {
     loadMovie();
   }, [loadMovie]);
+
+  useEffect(() => {
+    loadExtras();
+  }, [loadExtras]);
 
   useEffect(() => {
     loadReviews(reviewsPage);
@@ -98,10 +119,24 @@ const MovieDetailPage = () => {
     }
   };
 
+  const handleSubmitReview = async ({ rating, comment }) => {
+    try {
+      setIsSubmittingReview(true);
+      const data = await reviewService.createReview({ movieId: movie._id, rating, comment });
+      const newReview = data.review || data;
+      setReviews((prev) => [newReview, ...prev]);
+      toast.success('Reseña publicada');
+      loadMovie();
+    } catch (err) {
+      toast.error(err.message || 'Error al publicar la reseña');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
   const handleReviewCreated = (newReview) => {
     setReviews((prev) => [newReview, ...prev]);
     toast.success('Reseña publicada');
-    // Refresh movie to get updated averageRating
     loadMovie();
   };
 
@@ -210,7 +245,65 @@ const MovieDetailPage = () => {
           </div>
         </motion.div>
 
-        {/* Sección de reseñas */}
+          {/* Tráiler */}
+          {(extras.trailer || extrasLoading) && (
+            <section className="movie-detail__trailer">
+              <h2 className="section-title">
+                <FiPlay /> Tráiler oficial
+              </h2>
+              {extrasLoading ? (
+                <div className="extras-skeleton trailer-skeleton" />
+              ) : (
+                <div className="trailer-wrapper">
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${extras.trailer}?rel=0`}
+                    title="Tráiler"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Reparto */}
+          {(extras.cast.length > 0 || extrasLoading) && (
+            <section className="movie-detail__cast">
+              <h2 className="section-title">
+                <FiUsers /> Reparto principal
+              </h2>
+              <div className="cast-grid">
+                {extrasLoading
+                  ? Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="cast-card extras-skeleton" />
+                    ))
+                  : extras.cast.map((actor) => (
+                      <div key={actor.id} className="cast-card">
+                        <div className="cast-card__photo-wrapper">
+                          {actor.profileUrl ? (
+                            <img
+                              src={actor.profileUrl}
+                              alt={actor.name}
+                              className="cast-card__photo"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="cast-card__no-photo">
+                              <FiUser />
+                            </div>
+                          )}
+                        </div>
+                        <p className="cast-card__name">{actor.name}</p>
+                        {actor.character && (
+                          <p className="cast-card__character">{actor.character}</p>
+                        )}
+                      </div>
+                    ))}
+              </div>
+            </section>
+          )}
+
+          {/* Sección de reseñas */}
         <section className="movie-detail__reviews">
           <h2 className="section-title">
             <FiStar /> Reseñas de la comunidad
@@ -218,8 +311,8 @@ const MovieDetailPage = () => {
 
           {isAuthenticated && !userHasReviewed && (
             <ReviewForm
-              movieId={movie._id}
-              onReviewCreated={handleReviewCreated}
+              onSubmit={handleSubmitReview}
+              isSubmitting={isSubmittingReview}
             />
           )}
 

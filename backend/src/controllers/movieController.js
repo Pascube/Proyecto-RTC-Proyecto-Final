@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const Movie = require('../models/Movie');
 const Review = require('../models/Review');
 const { cloudinary } = require('../config/cloudinary');
+const tmdbService = require('../services/tmdbService');
 
 // GET /api/movies — Listar películas con búsqueda, filtros y paginación
 const getMovies = async (req, res, next) => {
@@ -182,4 +183,18 @@ const getStats = async (req, res, next) => {
   }
 };
 
-module.exports = { getMovies, getMovieById, createMovie, updateMovie, deleteMovie, uploadPoster, getStats };
+// GET /api/movies/:id/extras — Reparto y tráiler desde TMDB
+const getMovieExtras = async (req, res, next) => {
+  try {
+    const movie = await Movie.findById(req.params.id).select('title year');
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada.' });
+    }
+    const extras = await tmdbService.getMovieExtras(movie.title, movie.year);
+    res.json(extras);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getMovies, getMovieById, createMovie, updateMovie, deleteMovie, uploadPoster, getStats, getMovieExtras };

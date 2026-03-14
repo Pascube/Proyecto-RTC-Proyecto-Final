@@ -8,6 +8,7 @@ const {
   deleteMovie,
   uploadPoster,
   getStats,
+  getMovieExtras,
 } = require('../controllers/movieController');
 const auth = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
@@ -27,6 +28,7 @@ const movieValidation = [
 
 router.get('/', getMovies);
 router.get('/stats', auth, isAdmin, getStats);
+router.get('/:id/extras', getMovieExtras);
 router.get('/:id', getMovieById);
 router.post('/', auth, isAdmin, movieValidation, createMovie);
 router.put('/:id', auth, isAdmin, movieValidation, updateMovie);

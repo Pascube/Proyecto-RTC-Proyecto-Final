@@ -50,7 +50,7 @@ Las relaciones son:
 | express-validator | Validación de inputs |
 | morgan | Logging de peticiones |
 | cloudinary + multer | Subida de imágenes (posters) |
-| TMDB API | Obtención automática de pósters reales |
+| TMDB API | Obtención automática de pósters reales, reparto y tráilers |
 | Proxy de imágenes | Render fiable de imágenes externas vía backend |
 
 ### Frontend
@@ -253,6 +253,7 @@ VITE_API_URL=http://localhost:5000/api
 |--------|------|-------------|------|
 | GET | `/api/movies` | Listar películas (filtros, paginación) | No |
 | GET | `/api/movies/:id` | Detalle de película | No |
+| GET | `/api/movies/:id/extras` | Reparto y tráiler desde TMDB | No |
 | POST | `/api/movies` | Crear película | Admin |
 | PUT | `/api/movies/:id` | Editar película | Admin |
 | DELETE | `/api/movies/:id` | Eliminar película | Admin |
@@ -294,6 +295,8 @@ VITE_API_URL=http://localhost:5000/api
 - [x] Subida de imágenes vía Cloudinary
 - [x] Actualización masiva de pósters reales vía TMDB
 - [x] Proxy de imágenes para evitar bloqueos de render en frontend
+- [x] Reparto principal con fotos de actores (TMDB)
+- [x] Tráiler oficial embebido desde YouTube (TMDB)
 - [x] Diseño responsive y oscuro
 - [x] Animaciones con Framer Motion
 - [x] Notificaciones con React Hot Toast
