@@ -9,14 +9,21 @@ import { getProxiedImageUrl } from '../utils/imageProxy';
 import './HomePage.css';
 
 const HERO_GENRES = ['Thriller', 'Drama', 'Ciencia Ficción', 'Acción', 'Animación'];
-const HERO_FALLBACK = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-  `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'>
-    <rect width='1200' height='800' fill='#0f172a'/>
-    <circle cx='220' cy='180' r='220' fill='#c9a227' fill-opacity='0.12'/>
-    <circle cx='980' cy='620' r='260' fill='#c9a227' fill-opacity='0.08'/>
-    <text x='600' y='390' text-anchor='middle' fill='#e5e7eb' font-size='54' font-family='Arial, sans-serif'>CineClub</text>
-  </svg>`
-)}`;
+
+// Para el hero usamos la imagen de TMDB en formato horizontal (w1280)
+// sustituyendo w500 por w1280 en la URL del póster
+const getHeroImageUrl = (posterUrl = '') => {
+  if (!posterUrl) return null;
+  // Siempre pasamos por el proxy (mismo origen = sin bloqueo CORS)
+  // Para TMDB escalamos a w1280 para mejor resolución en el hero
+  const url = posterUrl.includes('image.tmdb.org')
+    ? posterUrl.replace('/w500/', '/w1280/')
+    : posterUrl;
+  return getProxiedImageUrl(url);
+};
+
+const HERO_FALLBACK_SVG = "<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'><rect width='1200' height='800' fill='#0f172a'/><circle cx='220' cy='180' r='220' fill='%23c9a227' fill-opacity='0.12'/><circle cx='980' cy='620' r='260' fill='%23c9a227' fill-opacity='0.08'/><text x='600' y='390' text-anchor='middle' fill='%23e5e7eb' font-size='54' font-family='Arial, sans-serif'>CineClub</text></svg>";
+const HERO_FALLBACK = `data:image/svg+xml;charset=UTF-8,${HERO_FALLBACK_SVG}`;
 
 const HomePage = () => {
   const [topRated, setTopRated] = useState([]);
@@ -48,12 +55,16 @@ const HomePage = () => {
       {/* Hero */}
       {featuredMovie && (
         <section className="hero">
-          <div
-            className="hero__backdrop"
-            style={{
-              backgroundImage: `url(${featuredMovie.posterUrl ? getProxiedImageUrl(featuredMovie.posterUrl) : HERO_FALLBACK}), url(${HERO_FALLBACK})`,
-            }}
-          />
+          <div className="hero__backdrop">
+            {featuredMovie.posterUrl && (
+              <img
+                src={getHeroImageUrl(featuredMovie.posterUrl)}
+                alt=""
+                className="hero__backdrop-img"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+            )}
+          </div>
           <div className="hero__overlay" />
           <div className="container hero__content">
             <motion.div

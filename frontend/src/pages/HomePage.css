@@ -14,10 +14,17 @@
 .hero__backdrop {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center top;
-  filter: blur(2px) brightness(0.4);
-  transform: scale(1.05);
+  overflow: hidden;
+}
+
+.hero__backdrop-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  filter: blur(1px) brightness(0.55);
+  transform: scale(1.08);
+  display: block;
 }
 
 .hero__overlay {
