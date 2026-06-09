@@ -20,13 +20,30 @@ import './AdminPage.css';
 const EMPTY_MOVIE_FORM = {
   title: '',
   year: '',
-  genre: '',
+  genre: [],
   director: '',
   synopsis: '',
   duration: '',
   language: 'Español',
   posterUrl: '',
 };
+
+const MOVIE_GENRES = [
+  'Acción',
+  'Aventura',
+  'Animación',
+  'Comedia',
+  'Crimen',
+  'Documental',
+  'Drama',
+  'Fantasía',
+  'Terror',
+  'Musical',
+  'Romance',
+  'Ciencia Ficción',
+  'Thriller',
+  'Western',
+];
 
 const AdminPage = () => {
   const [stats, setStats] = useState(null);
@@ -42,6 +59,12 @@ const AdminPage = () => {
   const [editingMovie, setEditingMovie] = useState(null);
   const [movieForm, setMovieForm] = useState(EMPTY_MOVIE_FORM);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: null,
+  });
 
   useEffect(() => {
     loadStats();
@@ -77,7 +100,7 @@ const AdminPage = () => {
   const loadUsers = async () => {
     try {
       const data = await userService.getAllUsers();
-      setUsers(data);
+      setUsers(data.users || data.data || data || []);
     } catch {
       // silently fail
     }
@@ -94,7 +117,7 @@ const AdminPage = () => {
     setMovieForm({
       title: movie.title || '',
       year: movie.year || '',
-      genre: Array.isArray(movie.genre) ? movie.genre.join(', ') : movie.genre || '',
+      genre: Array.isArray(movie.genre) ? movie.genre : movie.genre ? [movie.genre] : [],
       director: movie.director || '',
       synopsis: movie.synopsis || '',
       duration: movie.duration || '',
@@ -109,51 +132,87 @@ const AdminPage = () => {
       toast.error('Título y año son obligatorios');
       return;
     }
+    if (!movieForm.genre.length) {
+      toast.error('Selecciona al menos un género');
+      return;
+    }
     setIsSaving(true);
     const payload = {
       ...movieForm,
       year: Number(movieForm.year),
       duration: movieForm.duration ? Number(movieForm.duration) : undefined,
-      genre: movieForm.genre.split(',').map((g) => g.trim()).filter(Boolean),
+      genre: movieForm.genre,
     };
     try {
       if (editingMovie) {
-        const updated = await movieService.updateMovie(editingMovie._id, payload);
-        setMovies((prev) => prev.map((m) => (m._id === updated._id ? updated : m)));
+        const updatedResponse = await movieService.updateMovie(editingMovie._id, payload);
+        const updatedMovie = updatedResponse.movie || updatedResponse;
+        setMovies((prev) => prev.map((m) => (m._id === updatedMovie._id ? updatedMovie : m)));
         toast.success('Película actualizada');
       } else {
-        const created = await movieService.createMovie(payload);
-        setMovies((prev) => [created, ...prev]);
+        const createdResponse = await movieService.createMovie(payload);
+        const createdMovie = createdResponse.movie || createdResponse;
+        setMovies((prev) => [createdMovie, ...prev]);
         toast.success('Película creada');
       }
       setMovieModal(false);
     } catch (err) {
-      toast.error(err.message || 'Error al guardar');
+      const firstValidationError = Array.isArray(err.errors)
+        ? (typeof err.errors[0] === 'string' ? err.errors[0] : err.errors[0]?.msg)
+        : null;
+      toast.error(firstValidationError || err.message || 'Error al guardar');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDeleteMovie = async (movieId) => {
-    if (!window.confirm('¿Eliminar esta película y todas sus reseñas?')) return;
-    try {
-      await movieService.deleteMovie(movieId);
-      setMovies((prev) => prev.filter((m) => m._id !== movieId));
-      toast.success('Película eliminada');
-    } catch (err) {
-      toast.error(err.message || 'Error al eliminar');
-    }
+  const openConfirmDialog = ({ title, description, onConfirm }) => {
+    setConfirmDialog({ isOpen: true, title, description, onConfirm });
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (!window.confirm('¿Eliminar este usuario?')) return;
-    try {
-      await userService.deleteUser(userId);
-      setUsers((prev) => prev.filter((u) => u._id !== userId));
-      toast.success('Usuario eliminado');
-    } catch (err) {
-      toast.error(err.message || 'Error al eliminar');
+  const closeConfirmDialog = () => {
+    setConfirmDialog({ isOpen: false, title: '', description: '', onConfirm: null });
+  };
+
+  const runConfirmDialogAction = async () => {
+    if (typeof confirmDialog.onConfirm !== 'function') {
+      closeConfirmDialog();
+      return;
     }
+    await confirmDialog.onConfirm();
+    closeConfirmDialog();
+  };
+
+  const handleDeleteMovie = (movieId) => {
+    openConfirmDialog({
+      title: 'Eliminar película',
+      description: 'Se eliminará la película y todas sus reseñas asociadas. Esta acción no se puede deshacer.',
+      onConfirm: async () => {
+        try {
+          await movieService.deleteMovie(movieId);
+          setMovies((prev) => prev.filter((m) => m._id !== movieId));
+          toast.success('Película eliminada');
+        } catch (err) {
+          toast.error(err.message || 'Error al eliminar');
+        }
+      },
+    });
+  };
+
+  const handleDeleteUser = (userId) => {
+    openConfirmDialog({
+      title: 'Eliminar usuario',
+      description: 'Esta cuenta se eliminará de forma permanente.',
+      onConfirm: async () => {
+        try {
+          await userService.deleteUser(userId);
+          setUsers((prev) => prev.filter((u) => u._id !== userId));
+          toast.success('Usuario eliminado');
+        } catch (err) {
+          toast.error(err.message || 'Error al eliminar');
+        }
+      },
+    });
   };
 
   return (
@@ -358,7 +417,6 @@ const AdminPage = () => {
           {[
             { name: 'title', label: 'Título *', placeholder: 'El Padrino' },
             { name: 'year', label: 'Año *', placeholder: '1972', type: 'number' },
-            { name: 'genre', label: 'Géneros (separados por coma)', placeholder: 'Drama, Crimen' },
             { name: 'director', label: 'Director', placeholder: 'Francis Ford Coppola' },
             { name: 'duration', label: 'Duración (min)', placeholder: '175', type: 'number' },
             { name: 'language', label: 'Idioma', placeholder: 'Inglés' },
@@ -376,6 +434,23 @@ const AdminPage = () => {
             </div>
           ))}
           <div className="form-group">
+            <label className="form-label">Géneros *</label>
+            <select
+              className="form-input"
+              multiple
+              value={movieForm.genre}
+              onChange={(e) => {
+                const selectedValues = Array.from(e.target.selectedOptions, (option) => option.value);
+                setMovieForm((prev) => ({ ...prev, genre: selectedValues }));
+              }}
+            >
+              {MOVIE_GENRES.map((genre) => (
+                <option key={genre} value={genre}>{genre}</option>
+              ))}
+            </select>
+            <small className="admin-help-text">Mantén Ctrl/Cmd para seleccionar varios géneros.</small>
+          </div>
+          <div className="form-group">
             <label className="form-label">Sinopsis</label>
             <textarea
               className="form-input"
@@ -391,6 +466,14 @@ const AdminPage = () => {
               {isSaving ? 'Guardando...' : editingMovie ? 'Actualizar' : 'Crear'}
             </button>
           </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={confirmDialog.isOpen} onClose={closeConfirmDialog} title={confirmDialog.title} size="sm">
+        <p className="admin-confirm-description">{confirmDialog.description}</p>
+        <div className="movie-form__actions">
+          <button className="btn btn-secondary" onClick={closeConfirmDialog}>Cancelar</button>
+          <button className="btn btn-primary" onClick={runConfirmDialogAction}>Confirmar</button>
         </div>
       </Modal>
     </div>

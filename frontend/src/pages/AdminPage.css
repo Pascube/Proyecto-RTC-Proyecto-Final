@@ -310,6 +310,22 @@
   width: 100%;
 }
 
+.movie-form select.form-input[multiple] {
+  min-height: 140px;
+}
+
+.admin-help-text {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+}
+
+.admin-confirm-description {
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
 .movie-form .form-input:focus {
   outline: none;
   border-color: var(--color-accent);

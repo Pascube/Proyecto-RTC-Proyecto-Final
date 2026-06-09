@@ -45,6 +45,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/images', imageRoutes);
 
 // Ruta de salud del servidor
+app.get('/', (req, res) => {
+  res.json({ status: 'OK', message: 'CineClub API online', health: '/api/health' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'CineClub API funcionando correctamente 🎬' });
 });

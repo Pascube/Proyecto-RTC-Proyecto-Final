@@ -194,7 +194,7 @@ Aplicación local:
 
 ### 1. Clonar el repositorio
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/Pascube/Proyecto-RTC-Proyecto-Final.git
 cd proyecto-final
 ```
 
@@ -349,7 +349,7 @@ VITE_API_URL=http://localhost:5000/api
 
 | Parte | Plataforma | URL |
 |-------|-----------|-----|
-| Backend | Render | `https://cineclub-api.onrender.com` |
+| Backend | Render | `https://cineclub-api.onrender.com` (`/api/health`) |
 | Frontend | Vercel | `https://cineclub.vercel.app` |
 | Base de datos | MongoDB Atlas | Cloud |
 

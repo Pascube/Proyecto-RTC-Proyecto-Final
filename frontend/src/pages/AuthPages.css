@@ -111,7 +111,7 @@
 }
 
 .form-input::placeholder {
-  color: var(--color-text-tertiary);
+  color: rgba(255, 255, 255, 0.34);
 }
 
 .form-group--error .form-input {
