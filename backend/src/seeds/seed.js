@@ -126,7 +126,16 @@ const seedReviews = async (users, movies) => {
 
 // ─── Ejecución principal ──────────────────────────────────────────────────────
 
+const closeConnection = async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+    console.log('🔌 Conexión a MongoDB cerrada correctamente.');
+  }
+};
+
 const seed = async () => {
+  let exitCode = 0;
+
   try {
     await connectDB();
 
@@ -155,12 +164,32 @@ const seed = async () => {
     console.log(`   - ${movies.length} películas`);
     const reviewCount = await Review.countDocuments();
     console.log(`   - ${reviewCount} reseñas\n`);
-
-    process.exit(0);
   } catch (error) {
     console.error('\n❌ Error durante la semilla:', error.message);
-    process.exit(1);
+    exitCode = 1;
+  } finally {
+    try {
+      await closeConnection();
+    } catch (closeError) {
+      console.error('❌ Error cerrando conexión:', closeError.message);
+      exitCode = 1;
+    }
+
+    console.log(exitCode === 0 ? '✅ Proceso de semilla finalizado correctamente.' : '❌ Proceso de semilla finalizado con errores.');
+    process.exit(exitCode);
   }
 };
+
+const shutdown = async (signal) => {
+  console.warn(`\n⚠️  Señal ${signal} recibida. Cerrando proceso de semilla...`);
+  try {
+    await closeConnection();
+  } finally {
+    process.exit(130);
+  }
+};
+
+process.once('SIGINT', () => shutdown('SIGINT'));
+process.once('SIGTERM', () => shutdown('SIGTERM'));
 
 seed();

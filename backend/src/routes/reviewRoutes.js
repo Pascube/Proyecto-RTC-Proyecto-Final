@@ -1,6 +1,8 @@
 const express = require('express');
 const { body } = require('express-validator');
 const {
+  getAllReviews,
+  getReviewById,
   getReviewsByMovie,
   getMyReviews,
   createReview,
@@ -16,8 +18,10 @@ const reviewValidation = [
   body('comment').trim().isLength({ min: 10, max: 1000 }).withMessage('El comentario debe tener entre 10 y 1000 caracteres'),
 ];
 
+router.get('/', getAllReviews);
 router.get('/movie/:movieId', getReviewsByMovie);
 router.get('/my-reviews', auth, getMyReviews);
+router.get('/:id', getReviewById);
 router.post('/', auth, [...reviewValidation, body('movieId').notEmpty().withMessage('El ID de película es obligatorio')], createReview);
 router.put('/:id', auth, reviewValidation, updateReview);
 router.delete('/:id', auth, deleteReview);

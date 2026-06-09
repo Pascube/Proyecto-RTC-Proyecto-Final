@@ -12,7 +12,7 @@ const {
 } = require('../controllers/movieController');
 const auth = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
-const { upload } = require('../config/cloudinary');
+const { uploadPoster: uploadPosterMiddleware } = require('../config/cloudinary');
 
 const router = express.Router();
 
@@ -33,6 +33,6 @@ router.get('/:id', getMovieById);
 router.post('/', auth, isAdmin, movieValidation, createMovie);
 router.put('/:id', auth, isAdmin, movieValidation, updateMovie);
 router.delete('/:id', auth, isAdmin, deleteMovie);
-router.post('/:id/poster', auth, isAdmin, upload.single('poster'), uploadPoster);
+router.post('/:id/poster', auth, isAdmin, uploadPosterMiddleware.single('poster'), uploadPoster);
 
 module.exports = router;

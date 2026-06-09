@@ -63,14 +63,14 @@ reviewSchema.statics.calcAverageRating = async function (movieId) {
 };
 
 // Recalcular rating tras guardar una reseña
-reviewSchema.post('save', function () {
-  this.constructor.calcAverageRating(this.movie);
+reviewSchema.post('save', async function () {
+  await this.constructor.calcAverageRating(this.movie);
 });
 
 // Recalcular rating tras eliminar una reseña
-reviewSchema.post('findOneAndDelete', function (doc) {
+reviewSchema.post('findOneAndDelete', async function (doc) {
   if (doc) {
-    doc.constructor.calcAverageRating(doc.movie);
+    await doc.constructor.calcAverageRating(doc.movie);
   }
 });
 

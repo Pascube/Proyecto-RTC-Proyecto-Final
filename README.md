@@ -183,6 +183,10 @@ Aplicación local:
 - Frontend: `http://127.0.0.1:5173`
 - Backend: `http://127.0.0.1:5000`
 
+### Credenciales de Admin para corrección
+- Email: `admin@cineclub.com`
+- Password: `Admin1234!`
+
 ### Requisitos previos
 - Node.js v18+
 - MongoDB Atlas (o local)
@@ -222,6 +226,8 @@ npm run dev      # Iniciar cliente en modo desarrollo
 ```env
 PORT=5000
 MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/cineclub
+MONGODB_URI_FALLBACK=
+MONGODB_URI_LOCAL=mongodb://127.0.0.1:27017/cineclub
 JWT_SECRET=tu_clave_secreta_muy_larga
 JWT_EXPIRES_IN=7d
 CLOUDINARY_CLOUD_NAME=tu_cloud_name
@@ -232,10 +238,26 @@ FRONTEND_URL=http://127.0.0.1:5173
 NODE_ENV=development
 ```
 
+Notas para corrección:
+- Usa `MONGODB_URI` como conexión principal (Atlas recomendado).
+- Si Atlas falla por DNS o red, el backend intentará `MONGODB_URI_FALLBACK` y luego `MONGODB_URI_LOCAL`.
+- Si usas local, levanta MongoDB en `127.0.0.1:27017` y ejecuta `npm run seed`.
+
 ### Frontend (`frontend/.env`)
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
+
+---
+
+## ▶️ Scripts Backend
+
+| Script | Comando | Descripción |
+|--------|---------|-------------|
+| Start | `npm start` | Inicia la API en modo normal |
+| Dev | `npm run dev` | Inicia la API con recarga automática |
+| Seed | `npm run seed` | Ejecuta semilla de usuarios, películas y reseñas |
+| Posters TMDB | `npm run posters:tmdb` | Actualiza pósters desde TMDB |
 
 ---
 
@@ -267,7 +289,9 @@ VITE_API_URL=http://localhost:5000/api
 ### Reviews
 | Método | Ruta | Descripción | Auth |
 |--------|------|-------------|------|
+| GET | `/api/reviews` | Listar todas las reseñas (paginado) | No |
 | GET | `/api/reviews/movie/:movieId` | Reseñas de una película | No |
+| GET | `/api/reviews/:id` | Obtener reseña por ID | No |
 | POST | `/api/reviews` | Crear reseña | Sí |
 | PUT | `/api/reviews/:id` | Editar reseña | Sí (autor) |
 | DELETE | `/api/reviews/:id` | Eliminar reseña | Sí (autor/admin) |
@@ -280,7 +304,9 @@ VITE_API_URL=http://localhost:5000/api
 | POST | `/api/users/watchlist/:movieId` | Añadir a watchlist | Sí |
 | DELETE | `/api/users/watchlist/:movieId` | Quitar de watchlist | Sí |
 | GET | `/api/users` | Listar usuarios | Admin |
-| DELETE | `/api/users/:id` | Eliminar usuario | Admin |
+| GET | `/api/users/:id` | Obtener usuario por ID | Admin |
+| PUT | `/api/users/:id` | Actualizar usuario (incluye avatar/password) | Admin |
+| DELETE | `/api/users/:id` | Eliminar usuario | Sí (admin o propietario) |
 
 ---
 

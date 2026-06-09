@@ -4,6 +4,7 @@ import { FiClock, FiPlus, FiCheck } from 'react-icons/fi';
 import { useCallback } from 'react';
 import StarRating from '../common/StarRating';
 import { useAuth } from '../../context/AuthContext';
+import { getProxiedImageUrl } from '../../utils/imageProxy';
 import './MovieCard.css';
 
 const getFallbackPoster = (title) => {
@@ -16,9 +17,6 @@ const getFallbackPoster = (title) => {
   </svg>`;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 };
-
-const getProxiedPoster = (url) =>
-  `/api/images/proxy?url=${encodeURIComponent(url)}`;
 
 const MovieCard = ({ movie, isInWatchlist = false, onWatchlistToggle }) => {
   const { isAuthenticated } = useAuth();
@@ -44,7 +42,7 @@ const MovieCard = ({ movie, isInWatchlist = false, onWatchlistToggle }) => {
         {/* Poster */}
         <div className="movie-card__poster">
           <img
-            src={movie.posterUrl ? getProxiedPoster(movie.posterUrl) : getFallbackPoster(movie.title)}
+            src={movie.posterUrl ? getProxiedImageUrl(movie.posterUrl) : getFallbackPoster(movie.title)}
             alt={`Póster de ${movie.title}`}
             loading="lazy"
             onError={(e) => {

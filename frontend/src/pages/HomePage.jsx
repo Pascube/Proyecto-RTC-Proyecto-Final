@@ -5,10 +5,18 @@ import { FiArrowRight, FiStar, FiFilm } from 'react-icons/fi';
 import movieService from '../services/movieService';
 import MovieCard from '../components/movies/MovieCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { getProxiedImageUrl } from '../utils/imageProxy';
 import './HomePage.css';
 
 const HERO_GENRES = ['Thriller', 'Drama', 'Ciencia Ficción', 'Acción', 'Animación'];
-const HERO_FALLBACK = 'https://placehold.co/1200x800/1a1a2e/c9a227?text=CineClub';
+const HERO_FALLBACK = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'>
+    <rect width='1200' height='800' fill='#0f172a'/>
+    <circle cx='220' cy='180' r='220' fill='#c9a227' fill-opacity='0.12'/>
+    <circle cx='980' cy='620' r='260' fill='#c9a227' fill-opacity='0.08'/>
+    <text x='600' y='390' text-anchor='middle' fill='#e5e7eb' font-size='54' font-family='Arial, sans-serif'>CineClub</text>
+  </svg>`
+)}`;
 
 const HomePage = () => {
   const [topRated, setTopRated] = useState([]);
@@ -43,7 +51,7 @@ const HomePage = () => {
           <div
             className="hero__backdrop"
             style={{
-              backgroundImage: `url(${featuredMovie.posterUrl || HERO_FALLBACK}), url(${HERO_FALLBACK})`,
+              backgroundImage: `url(${featuredMovie.posterUrl ? getProxiedImageUrl(featuredMovie.posterUrl) : HERO_FALLBACK}), url(${HERO_FALLBACK})`,
             }}
           />
           <div className="hero__overlay" />

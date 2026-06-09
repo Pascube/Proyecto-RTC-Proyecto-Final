@@ -10,6 +10,7 @@ import StarRating from '../components/common/StarRating';
 import ReviewCard from '../components/reviews/ReviewCard';
 import ReviewForm from '../components/reviews/ReviewForm';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { getProxiedImageUrl } from '../utils/imageProxy';
 import {
   FiBookmark,
   FiCalendar,
@@ -31,8 +32,14 @@ const PLACEHOLDER = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
     <text x='200' y='320' text-anchor='middle' fill='#f0f0f0' font-size='18' font-family='Arial, sans-serif'>Sin Poster</text>
   </svg>`
 )}`;
-const BACKDROP_FALLBACK = 'https://placehold.co/1200x800/0d0d0d/c9a227?text=CineClub';
-const getProxiedPoster = (url) => `/api/images/proxy?url=${encodeURIComponent(url)}`;
+const BACKDROP_FALLBACK = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'>
+    <rect width='1200' height='800' fill='#0b1020'/>
+    <circle cx='300' cy='250' r='240' fill='#c9a227' fill-opacity='0.1'/>
+    <circle cx='950' cy='550' r='280' fill='#c9a227' fill-opacity='0.08'/>
+    <text x='600' y='410' text-anchor='middle' fill='#f3f4f6' font-size='52' font-family='Arial, sans-serif'>CineClub</text>
+  </svg>`
+)}`;
 
 const MovieDetailPage = () => {
   const { id } = useParams();
@@ -176,7 +183,7 @@ const MovieDetailPage = () => {
         <div
           className="movie-detail__backdrop"
           style={{
-            backgroundImage: `url(${getProxiedPoster(movie.posterUrl)}), url(${BACKDROP_FALLBACK})`,
+            backgroundImage: `url(${getProxiedImageUrl(movie.posterUrl)}), url(${BACKDROP_FALLBACK})`,
           }}
         />
       )}
@@ -195,7 +202,7 @@ const MovieDetailPage = () => {
           {/* Póster */}
           <div className="movie-detail__poster-wrapper">
             <img
-              src={movie.posterUrl ? getProxiedPoster(movie.posterUrl) : PLACEHOLDER}
+              src={movie.posterUrl ? getProxiedImageUrl(movie.posterUrl) : PLACEHOLDER}
               alt={movie.title}
               className="movie-detail__poster"
               onError={(e) => { e.target.src = PLACEHOLDER; }}

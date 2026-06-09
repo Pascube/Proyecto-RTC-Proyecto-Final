@@ -2,6 +2,13 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
 
+const sanitizeUser = (userDoc) => {
+  if (!userDoc) return null;
+  const user = userDoc.toObject ? userDoc.toObject() : { ...userDoc };
+  delete user.password;
+  return user;
+};
+
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
@@ -15,15 +22,23 @@ const register = async (req, res, next) => {
 
     const { username, email, password } = req.body;
 
+    const userPayload = { username, email, password, role: 'user' };
+    if (req.file) {
+      userPayload.avatar = req.file.path;
+      userPayload.avatarPublicId = req.file.filename;
+      userPayload.image = req.file.path;
+      userPayload.imagePublicId = req.file.filename;
+    }
+
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
       return res.status(409).json({ message: 'El email o nombre de usuario ya están en uso.' });
     }
 
-    const user = await User.create({ username, email, password });
+    const user = await User.create(userPayload);
     const token = generateToken(user._id);
 
-    res.status(201).json({ token, user });
+    res.status(201).json({ token, user: sanitizeUser(user) });
   } catch (error) {
     next(error);
   }
@@ -46,10 +61,7 @@ const login = async (req, res, next) => {
 
     const token = generateToken(user._id);
 
-    // No devolver la contraseña
-    user.password = undefined;
-
-    res.json({ token, user });
+    res.json({ token, user: sanitizeUser(user) });
   } catch (error) {
     next(error);
   }
@@ -59,7 +71,7 @@ const login = async (req, res, next) => {
 const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id).populate('watchlist', 'title posterUrl year genre averageRating');
-    res.json({ user });
+    res.json({ user: sanitizeUser(user) });
   } catch (error) {
     next(error);
   }

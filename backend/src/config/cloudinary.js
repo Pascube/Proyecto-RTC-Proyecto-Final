@@ -8,7 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+const posterStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'cineclub/posters',
@@ -17,9 +17,23 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({
-  storage,
+const avatarStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'cineclub/avatars',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 300, height: 300, crop: 'fill' }],
+  },
+});
+
+const uploadPoster = multer({
+  storage: posterStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // máximo 5MB
 });
 
-module.exports = { cloudinary, upload };
+const uploadAvatar = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // máximo 5MB
+});
+
+module.exports = { cloudinary, uploadPoster, uploadAvatar };

@@ -2,6 +2,55 @@ const { validationResult } = require('express-validator');
 const Review = require('../models/Review');
 const Movie = require('../models/Movie');
 
+// GET /api/reviews — Listar todas las reseñas
+const getAllReviews = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [reviews, total] = await Promise.all([
+      Review.find()
+        .populate('user', 'username avatar')
+        .populate('movie', 'title posterUrl year')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      Review.countDocuments(),
+    ]);
+
+    res.json({
+      reviews,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET /api/reviews/:id — Obtener reseña por ID
+const getReviewById = async (req, res, next) => {
+  try {
+    const review = await Review.findById(req.params.id)
+      .populate('user', 'username avatar')
+      .populate('movie', 'title posterUrl year');
+
+    if (!review) {
+      return res.status(404).json({ message: 'Reseña no encontrada.' });
+    }
+
+    res.json({ review });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // GET /api/reviews/movie/:movieId — Reseñas de una película
 const getReviewsByMovie = async (req, res, next) => {
   try {
@@ -134,4 +183,12 @@ const deleteReview = async (req, res, next) => {
   }
 };
 
-module.exports = { getReviewsByMovie, getMyReviews, createReview, updateReview, deleteReview };
+module.exports = {
+  getAllReviews,
+  getReviewById,
+  getReviewsByMovie,
+  getMyReviews,
+  createReview,
+  updateReview,
+  deleteReview,
+};
